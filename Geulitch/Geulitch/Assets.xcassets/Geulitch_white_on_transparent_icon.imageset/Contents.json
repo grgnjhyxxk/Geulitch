@@ -1,16 +1,49 @@
 {
   "images" : [
     {
+      "filename" : "Geulitch_black_on_transparent_icon.png",
+      "idiom" : "universal",
+      "scale" : "1x"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "dark"
+        }
+      ],
       "filename" : "Geulitch_white_on_transparent_icon.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
+      "filename" : "Geulitch_black_on_transparent_icon@2x.png",
+      "idiom" : "universal",
+      "scale" : "2x"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "dark"
+        }
+      ],
       "filename" : "Geulitch_white_on_transparent_icon@2x.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
+      "filename" : "Geulitch_black_on_transparent_icon@3x.png",
+      "idiom" : "universal",
+      "scale" : "3x"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "dark"
+        }
+      ],
       "filename" : "Geulitch_white_on_transparent_icon@3x.png",
       "idiom" : "universal",
       "scale" : "3x"
