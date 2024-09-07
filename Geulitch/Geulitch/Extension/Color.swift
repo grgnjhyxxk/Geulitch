@@ -9,6 +9,6 @@ import UIKit
 
 extension UIColor {
     static var primaryColor: UIColor {
-        return UIColor(named: "BasicDarkModeColor") ?? .systemBlue
+        return UIColor(named: "PrimaryColor") ?? .systemBlue
     }
 }
