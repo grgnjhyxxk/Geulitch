@@ -10,55 +10,7 @@ import Then
 
 class LaunchViewController: UIViewController {
     private let launchView = LaunchView()
-    class LaunchView: UIView {
-        let appIconImageView = UIImageView().then {
-            $0.contentMode = .scaleAspectFit
-            $0.clipsToBounds = true
-        }
-        
-        let appNameLabel = UILabel().then {
-            $0.textColor = UIColor.white
-            $0.font = UIFont.notoSansKR(size: 20, weight: .bold)
-            $0.alpha = 0
-        }
-        
-        override init(frame: CGRect) {
-            super.init(frame: frame)
-            setupView()
-            setupConstraints()
-        }
-        
-        required init?(coder: NSCoder) {
-            fatalError("init(coder:) has not been implemented")
-        }
-        
-        private func setupView() {
-            addSubview(appIconImageView)
-            addSubview(appNameLabel)
-        }
-        
-        private func setupConstraints() {
-            appIconImageView.snp.makeConstraints { make in
-                make.center.equalToSuperview()
-                make.size.equalTo(CGSize(width: 80, height: 80))
-            }
-            
-            appNameLabel.snp.makeConstraints { make in
-                make.top.equalTo(appIconImageView.snp.bottom)
-                make.centerX.equalToSuperview()
-            }
-        }
-        
-        func configureAppIconImageView(with image: UIImage?) {
-            appIconImageView.image = image
-        }
-        
-        func configureAppNameLabel() {
-            if let appName = Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String {
-                appNameLabel.text = appName
-            }
-        }
-    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
         setupView()
@@ -66,7 +18,7 @@ class LaunchViewController: UIViewController {
     }
     
     private func setupView() {
-        view.backgroundColor = UIColor.primaryColor
+        view.backgroundColor = UIColor.primaryBackgroundColor
         view.addSubview(launchView)
         launchView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
@@ -106,10 +58,11 @@ class LaunchViewController: UIViewController {
     
     private func switchToAuthenticationViewController() {
         guard let window = UIApplication.shared.windows.first else { return }
-//        let authViewController = AuthenticationViewController()
+        let authViewController = UINavigationController(rootViewController: AuthenticationViewController())
         
-//        window.rootViewController = authViewController
-        
+        window.rootViewController = authViewController
+        window.makeKeyAndVisible()
+
         UIView.transition(with: window, duration: 0.5, options: .transitionCrossDissolve, animations: nil, completion: nil)
     }
 }

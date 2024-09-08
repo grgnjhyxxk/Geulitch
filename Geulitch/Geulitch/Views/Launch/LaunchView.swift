@@ -16,7 +16,7 @@ class LaunchView: UIView {
     }
     
     let appNameLabel = UILabel().then {
-        $0.textColor = UIColor.white
+        $0.textColor = UIColor.primaryTextColor
         $0.font = UIFont.notoSansKR(size: 20, weight: .bold)
         $0.alpha = 0
     }
