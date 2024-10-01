@@ -64,13 +64,28 @@ enum RegistrationConfig {
         case .phoneNumber:
             return "휴대폰 번호는 계정 인증 및 보안 목적으로 사용됩니다. 동일한 번호로 두 개 이상의 아이디를 가질 수 없습니다."
         case .verificationCode:
-            return "SMS로 발송된 인증번호를 입력하세요. 입력 시간을 초과하거나 실패가 반복될 시 보류될 수 있습니다."
+            return "SMS로 발송된 인증번호를 입력하세요. 입력 시간을 초과하거나 실패가 반복될 시 보류될 수 있습니다.\n\n인증번호 재인증은 1분마다 가능합니다."
         case .userId:
-            return "아이디는 고유해야 합니다."
+            return "알파벳과 숫자, 특수문자(_ .)를 사용할 수 있습니다. 마침표는 처음과 끝에 위치할 수 없습니다."
         case .password:
             return "안전한 비밀번호를 입력하세요."
         case .penName:
             return "필명은 다른 사람과 공유되지 않습니다."
+        }
+    }
+    
+    var maxCharacterLimit: Int {
+        switch self {
+        case .phoneNumber:
+            return 11
+        case .verificationCode:
+            return 6
+        case .userId:
+            return 30
+        case .password:
+            return 128
+        case .penName:
+            return 20
         }
     }
 }
