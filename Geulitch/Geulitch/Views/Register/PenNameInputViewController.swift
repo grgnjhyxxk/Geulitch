@@ -7,9 +7,10 @@
 
 import UIKit
 
-class PenNameInputViewController: BaseRegisterViewController {
+class PenNameInputViewController: BaseRegisterViewController, UITextFieldDelegate {
     private let registerView = RegisterView()
-    
+    var viewModel: RegisterViewModel?
+
     override func viewDidLoad() {
         super.viewDidLoad()
         setupView()
@@ -28,7 +29,10 @@ class PenNameInputViewController: BaseRegisterViewController {
             make.edges.equalToSuperview()
         }
                 
-        self.nextButton = registerView.nextButton
+        nextButton = registerView.nextButton
+        nextButton?.setTitle("완료", for: .normal)
+        circularProgressBar = registerView.circularProgressBar
+        registerView.textField.delegate = self
     }
     
     private func configureRegistraion() {
@@ -39,8 +43,11 @@ class PenNameInputViewController: BaseRegisterViewController {
             titleIconImage: titleIconImage,
             titleLabelText: step.titleLabelText,
             textFieldPlaceholder: step.textFieldPlaceholder,
-            textFieldExplainLabelText: step.textFieldExplainLabelText
+            textFieldExplainLabelText: step.textFieldExplainLabelText,
+            textLimitCountLabelText: "\(step.maxCharacterLimit)"
         )
+        
+        maxCharacterLimit = step.maxCharacterLimit
     }
     
     private func addTargets() {
@@ -48,6 +55,50 @@ class PenNameInputViewController: BaseRegisterViewController {
     }
     
     @objc func buttonAction() {
-        navigationController?.popToRootViewController(animated: true)
+        impactFeedbackgenerator.impactOccurred()
+        
+        if let penName = registerView.textField.text {
+            viewModel?.updatePenName(penName)
+            
+            registerView.activityIndicator.isHidden = false
+            registerView.activityIndicator.startAnimating()
+
+            viewModel?.signUp { result in
+                switch result {
+                case .success:
+                    print("회원가입 성공!")
+                    self.navigationController?.popToRootViewController(animated: true)
+                    self.registerView.activityIndicator.stopAnimating()
+                    self.registerView.activityIndicator.isHidden = true
+                case .failure(let error):
+                    print("회원가입 실패: \(error.localizedDescription)")
+                }
+            }
+        }
+    }
+    
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        let currentText = textField.text ?? ""
+        let prospectiveText = (currentText as NSString).replacingCharacters(in: range, with: string)
+        
+        if prospectiveText.count > 20 {
+            return false
+        }
+
+        if let maxCharacterLimit = maxCharacterLimit {
+            let progress = min(1.0, CGFloat(prospectiveText.count) / CGFloat(maxCharacterLimit))
+            registerView.circularProgressBar.updateProgress(to: progress)
+            registerView.textLimitCountLabel.text = "\(maxCharacterLimit-prospectiveText.count)"
+        }
+        
+        let changeBool = prospectiveText.count >= 0
+        UIView.animate(withDuration: 0.2, animations: {
+            self.registerView.textFieldActiveUnderline.backgroundColor = changeBool ? UIColor.AccentButtonBackgroundColor : UIColor.SubButtonBackgoundColor
+        })
+
+        registerView.nextButton.isEnabled = changeBool
+        registerView.nextButton.backgroundColor = changeBool ? UIColor.AccentButtonBackgroundColor : UIColor.systemGray
+
+        return true
     }
 }

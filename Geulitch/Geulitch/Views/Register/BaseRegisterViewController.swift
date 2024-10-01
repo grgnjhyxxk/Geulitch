@@ -9,7 +9,11 @@ import UIKit
 
 class BaseRegisterViewController: UIViewController {
     var nextButton: UIButton?
-
+    var reverificationButton: UIButton?
+    var circularProgressBar: CircularProgressBar?
+    var maxCharacterLimit: Int?
+    let impactFeedbackgenerator = UIImpactFeedbackGenerator(style: .medium)
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -39,18 +43,27 @@ class BaseRegisterViewController: UIViewController {
         if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue {
             let keyboardHeight = keyboardFrame.cgRectValue.height
 
-            if let nextButton = nextButton {
+            if let nextButton = nextButton, let circularProgressBar = circularProgressBar {
                 UIView.animate(withDuration: 0.3) {
                     nextButton.transform = CGAffineTransform(translationX: 0, y: -keyboardHeight + 25)
+                    circularProgressBar.transform = CGAffineTransform(translationX: 0, y: -keyboardHeight + 25)
+                    
+                    if let reverificationButton = self.reverificationButton {
+                        reverificationButton.transform = CGAffineTransform(translationX: 0, y: -keyboardHeight + 25)
+                    }
                 }
             }
         }
     }
 
     @objc func keyboardWillHide(notification: NSNotification) {
-        if let nextButton = nextButton {
+        if let nextButton = nextButton, let circularProgressBar = circularProgressBar {
             UIView.animate(withDuration: 0.3) {
                 nextButton.transform = .identity
+                circularProgressBar.transform = .identity
+                if let reverificationButton = self.reverificationButton {
+                    reverificationButton.transform = .identity
+                }
             }
         }
     }
