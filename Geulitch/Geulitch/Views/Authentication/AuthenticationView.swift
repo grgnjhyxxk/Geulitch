@@ -106,13 +106,13 @@ class AuthenticationView: UIView {
         }
         
         loginButton.snp.makeConstraints { make in
-            make.top.equalTo(subTitleLabel.snp.bottom).offset(150)
+            make.bottom.equalTo(registerButton.snp.top).offset(-20)
             make.centerX.equalToSuperview()
             make.size.equalTo(CGSize(width: 330, height: 40))
         }
         
         registerButton.snp.makeConstraints { make in
-            make.top.equalTo(loginButton.snp.bottom).offset(20)
+            make.bottom.equalTo(-220)
             make.centerX.equalToSuperview()
             make.size.equalTo(CGSize(width: 330, height: 40))
         }

@@ -27,6 +27,10 @@ class AuthenticationViewController: UIViewController {
                                     
         navigationItem.titleView = imageViews
         
+        let backBarButtonItem = UIBarButtonItem(title: "뒤로", style: .plain, target: self, action: nil)
+        backBarButtonItem.tintColor = UIColor.primaryLabelText
+        self.navigationItem.backBarButtonItem = backBarButtonItem
+        
         view.addSubview(authenticationView)
         authenticationView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
@@ -49,20 +53,24 @@ class AuthenticationViewController: UIViewController {
         default:
             break
         }
-        
-        let impactFeedbackgenerator = UIImpactFeedbackGenerator(style: .medium)
-        impactFeedbackgenerator.impactOccurred()
     }
 
-    @objc func buttonReleased(sender: UIButton) {
+    @objc func buttonReleased(sender: UIButton, for event: UIEvent) {
         switch sender {
         case authenticationView.loginButton:
             sender.backgroundColor = UIColor.AccentButtonBackgroundColor
         case authenticationView.registerButton:
             sender.backgroundColor = UIColor.SubButtonBackgoundColor
+            
+            if let touch = event.allTouches?.first, touch.phase == .ended {
+                let impactFeedbackgenerator = UIImpactFeedbackGenerator(style: .medium)
+                impactFeedbackgenerator.impactOccurred()
+
+                let viewController = PhoneNumberInputViewController()
+                self.navigationController?.pushViewController(viewController, animated: true)
+            }
         default:
             break
         }
     }
-
 }
