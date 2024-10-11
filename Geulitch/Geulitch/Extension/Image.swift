@@ -11,4 +11,8 @@ extension UIImage {
     static var Geulitch_white_on_transparent_icon: UIImage {
         return UIImage(named: "Geulitch_white_on_transparent_icon") ?? UIImage()
     }
+    
+    static var DefaultUserProfileImage: UIImage {
+        return UIImage(named: "DefaultUserProfileImage") ?? UIImage()
+    }
 }
