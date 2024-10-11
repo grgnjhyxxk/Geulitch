@@ -90,9 +90,17 @@ class VerificationCodeViewController: BaseRegisterViewController, UITextFieldDel
                 switch result {
                 case .success(let user):
                     print("인증 성공: \(user.uid)")
+                    
+                    // 아이디 입력 뷰 컨트롤러 생성
                     let userIDInputVC = UserIDInputViewController()
                     userIDInputVC.viewModel = self?.viewModel
-                    self?.navigationController?.pushViewController(userIDInputVC, animated: true)
+                    
+                    // 현재 스택에서 인증 뷰 컨트롤러 제거
+                    if var viewControllers = self?.navigationController?.viewControllers {
+                        viewControllers.removeLast() // 현재 인증 뷰 컨트롤러 제거
+                        viewControllers.append(userIDInputVC) // 아이디 입력 뷰 컨트롤러 추가
+                        self?.navigationController?.setViewControllers(viewControllers, animated: true) // 새로운 스택 설정
+                    }
                 case .failure(let error):
                     print("인증 실패: \(error.localizedDescription)")
                     self?.registerView.textFieldActiveUnderline.backgroundColor = .systemRed
