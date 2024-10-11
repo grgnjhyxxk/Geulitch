@@ -25,6 +25,8 @@ class PenNameInputViewController: BaseRegisterViewController, UITextFieldDelegat
     private func setupView() {
         view.addSubview(registerView)
         
+        navigationItem.title = "PEN NAME"
+
         registerView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
