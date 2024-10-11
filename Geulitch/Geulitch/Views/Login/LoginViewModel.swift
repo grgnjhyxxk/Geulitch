@@ -63,14 +63,10 @@ class LoginViewModel {
                 return
             }
             
-            if storedPassword == password {
-                completion(.success(()))
-            } else {
-                completion(.failure(NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "비밀번호가 일치하지 않습니다."])))
-            }
+            self.comparePassword(storedPassword: storedPassword, enteredPassword: password, completion: completion)
         }
     }
-    
+
     // 전화번호로 로그인
     func loginWithPhoneNumber(completion: @escaping (Result<Void, Error>) -> Void) {
         guard let phoneNumber = loginModel.phoneNumber, let password = loginModel.password else {
@@ -93,11 +89,16 @@ class LoginViewModel {
                 return
             }
             
-            if storedPassword == password {
-                completion(.success(()))
-            } else {
-                completion(.failure(NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "비밀번호가 일치하지 않습니다."])))
-            }
+            self.comparePassword(storedPassword: storedPassword, enteredPassword: password, completion: completion)
+        }
+    }
+
+    // 비밀번호 비교 함수
+    private func comparePassword(storedPassword: String, enteredPassword: String, completion: @escaping (Result<Void, Error>) -> Void) {
+        if storedPassword == enteredPassword {
+            completion(.success(()))
+        } else {
+            completion(.failure(NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "비밀번호가 일치하지 않습니다."])))
         }
     }
 }
