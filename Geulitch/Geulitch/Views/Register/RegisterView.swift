@@ -76,7 +76,7 @@ class RegisterView: UIView {
     
     let activityIndicator = UIActivityIndicatorView().then {
         $0.backgroundColor = UIColor.black.withAlphaComponent(0.5)
-        $0.color = UIColor.primaryLabelText
+        $0.color = UIColor.ActivityColor
         $0.style = .large
     }
     
@@ -215,7 +215,7 @@ class CircularProgressBar: UIView {
         layer.addSublayer(trackLayer)
         
         progressLayer.fillColor = UIColor.clear.cgColor
-        progressLayer.strokeColor = UIColor.primaryLabelText.cgColor
+        progressLayer.strokeColor = UIColor.ActivityColor.cgColor
         progressLayer.lineWidth = 3
         progressLayer.strokeEnd = 0
         layer.addSublayer(progressLayer)
