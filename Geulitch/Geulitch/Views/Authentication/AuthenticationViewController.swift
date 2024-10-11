@@ -27,7 +27,7 @@ class AuthenticationViewController: UIViewController {
                                     
         navigationItem.titleView = imageViews
         
-        let backBarButtonItem = UIBarButtonItem(title: "뒤로", style: .plain, target: self, action: nil)
+        let backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: self, action: nil)
         backBarButtonItem.tintColor = UIColor.primaryLabelText
         self.navigationItem.backBarButtonItem = backBarButtonItem
         
@@ -59,6 +59,13 @@ class AuthenticationViewController: UIViewController {
         switch sender {
         case authenticationView.loginButton:
             sender.backgroundColor = UIColor.AccentButtonBackgroundColor
+            if let touch = event.allTouches?.first, touch.phase == .ended {
+                let impactFeedbackgenerator = UIImpactFeedbackGenerator(style: .medium)
+                impactFeedbackgenerator.impactOccurred()
+
+                let viewController = LoginViewController()
+                self.navigationController?.pushViewController(viewController, animated: true)
+            }
         case authenticationView.registerButton:
             sender.backgroundColor = UIColor.SubButtonBackgoundColor
             
