@@ -25,6 +25,8 @@ class UserIDInputViewController: BaseRegisterViewController, UITextFieldDelegate
     private func setupView() {
         view.addSubview(registerView)
         
+        navigationItem.title = "USER ID"
+
         registerView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
@@ -58,6 +60,16 @@ class UserIDInputViewController: BaseRegisterViewController, UITextFieldDelegate
         impactFeedbackgenerator.impactOccurred()
 
         if let id = registerView.textField.text {
+            let isNumeric = CharacterSet.decimalDigits.isSuperset(of: CharacterSet(charactersIn: id))
+            if isNumeric {
+                print("아이디는 숫자로만 구성될 수 없습니다.")
+                self.registerView.textFieldActiveUnderline.backgroundColor = .systemRed
+                return
+            }
+            
+            registerView.activityIndicator.isHidden = false
+            registerView.activityIndicator.startAnimating()
+            
             viewModel?.checkIfUsernameExists(username: id) { isDuplicate in
                 if isDuplicate {
                     print("중복된 아이디입니다.")
@@ -68,8 +80,10 @@ class UserIDInputViewController: BaseRegisterViewController, UITextFieldDelegate
                     let passwordInputVC = PasswordInputViewController()
                     passwordInputVC.viewModel = self.viewModel
                     self.navigationController?.pushViewController(passwordInputVC, animated: true)
-
                 }
+                
+                self.registerView.activityIndicator.stopAnimating()
+                self.registerView.activityIndicator.isHidden = true
             }
         }
     }
