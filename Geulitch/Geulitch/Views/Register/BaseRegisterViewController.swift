@@ -16,7 +16,6 @@ class BaseRegisterViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
         setUpBaseView()
         
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
@@ -25,16 +24,8 @@ class BaseRegisterViewController: UIViewController {
     
     func setUpBaseView() {
         self.view.backgroundColor = UIColor.primaryBackgroundColor
-
-        let imageViews = UIImageView(image: UIImage.Geulitch_white_on_transparent_icon)
         
-        imageViews.snp.makeConstraints { make in
-            make.size.equalTo(CGSize(width: 34, height: 34))
-        }
-                                    
-        navigationItem.titleView = imageViews
-        
-        let backBarButtonItem = UIBarButtonItem(title: "뒤로", style: .plain, target: self, action: nil)
+        let backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: self, action: nil)
         backBarButtonItem.tintColor = UIColor.primaryLabelText
         self.navigationItem.backBarButtonItem = backBarButtonItem
     }
