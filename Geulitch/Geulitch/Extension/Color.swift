@@ -43,4 +43,12 @@ extension UIColor {
     static var SubLabelTextColor: UIColor {
         return UIColor(named: "SubLabelTextColor") ?? .systemBlue
     }
+    
+    static var ActivityColor: UIColor {
+        return UIColor(named: "ActivityColor") ?? .systemBlue
+    }
+    
+    static var UnderlineButtonTextColor: UIColor {
+        return UIColor(named: "UnderlineButtonTextColor") ?? .systemBlue
+    }
 }
