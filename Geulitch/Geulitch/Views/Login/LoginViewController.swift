@@ -17,6 +17,9 @@ class LoginViewController: UIViewController {
         setupView()
         configureRegistraion()
         addTargets()
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -25,14 +28,13 @@ class LoginViewController: UIViewController {
     
     private func setupView() {
         view.backgroundColor = UIColor.primaryBackground
+
+        navigationItem.title = "LOGIN"
         
-        let imageViews = UIImageView(image: UIImage.Geulitch_white_on_transparent_icon)
-        
-        imageViews.snp.makeConstraints { make in
-            make.size.equalTo(CGSize(width: 34, height: 34))
-        }
-                                    
-        navigationItem.titleView = imageViews
+        let backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: self, action: nil)
+        backBarButtonItem.tintColor = UIColor.primaryLabelText
+        self.navigationItem.backBarButtonItem = backBarButtonItem
+
         
         view.addSubview(loginView)
         
@@ -60,6 +62,7 @@ class LoginViewController: UIViewController {
     
     private func addTargets() {
         loginView.loginButton.addTarget(self, action: #selector(loginButtonTouched), for: .touchUpInside)
+        loginView.findAccountButton.addTarget(self, action: #selector(findAccountButtonTouched), for: .touchUpInside)
     }
     
     @objc private func loginButtonTouched() {
@@ -110,5 +113,34 @@ class LoginViewController: UIViewController {
                 self?.loginView.activityIndicator.isHidden = true
             }
         }
+    }
+    
+    @objc func findAccountButtonTouched() {
+        let findAccountPhoneNumberInputVC = FindAccountPhoneNumberInputViewController()
+        
+        navigationController?.pushViewController(findAccountPhoneNumberInputVC, animated: true)
+    }
+    
+    @objc func keyboardWillShow(notification: NSNotification) {
+        if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue {
+            let keyboardHeight = keyboardFrame.cgRectValue.height
+            let loginButton = loginView.loginButton
+            
+            UIView.animate(withDuration: 0.3) {
+                loginButton.transform = CGAffineTransform(translationX: 0, y: -keyboardHeight + 25)
+            }
+        }
+    }
+
+    @objc func keyboardWillHide(notification: NSNotification) {
+        let loginButton = loginView.loginButton
+
+        UIView.animate(withDuration: 0.3) {
+            loginButton.transform = .identity
+        }
+    }
+
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
 }
