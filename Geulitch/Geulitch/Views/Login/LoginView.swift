@@ -68,8 +68,25 @@ class LoginView: UIView {
     
     let activityIndicator = UIActivityIndicatorView().then {
         $0.backgroundColor = UIColor.black.withAlphaComponent(0.5)
-        $0.color = UIColor.primaryLabelText
+        $0.color = UIColor.ActivityColor
         $0.style = .large
+    }
+    
+    let findAccountButton = UIButton().then {
+        $0.backgroundColor = UIColor.clear
+        $0.titleLabel?.font = UIFont.notoSansKR(size: 13, weight: .medium)
+        $0.setTitleColor(UIColor.UnderlineButtonTextColor, for: .normal)
+        $0.sizeToFit()
+        
+        let title = "회원정보를 까먹으셨나요?"
+        let attributedTitle = NSAttributedString(
+            string: title,
+            attributes: [
+                .underlineStyle: NSUnderlineStyle.single.rawValue
+            ]
+        )
+
+        $0.setAttributedTitle(attributedTitle, for: .normal)
     }
     
     override init(frame: CGRect) {
@@ -93,6 +110,7 @@ class LoginView: UIView {
         addSubview(passwordInputTextFieldActiveUnderline)
         addSubview(loginButton)
         addSubview(activityIndicator)
+        addSubview(findAccountButton)
         
         activityIndicator.isHidden = true
     }
@@ -147,9 +165,15 @@ class LoginView: UIView {
             make.trailing.equalTo(passwordInputTextField)
             make.height.equalTo(1)
         }
+        
+        findAccountButton.snp.makeConstraints { make in
+            make.top.equalTo(passwordInputTextFieldActiveUnderline.snp.bottom).offset(15)
+            make.leading.equalTo(passwordInputTextField)
+
+        }
          
         loginButton.snp.makeConstraints { make in
-            make.top.equalTo(passwordInputTextFieldActiveUnderline.snp.bottom).offset(60)
+            make.bottom.equalTo(-40)
             make.centerX.equalToSuperview()
             make.size.equalTo(CGSize(width: 360, height: 40))
         }
