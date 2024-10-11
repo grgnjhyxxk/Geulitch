@@ -12,6 +12,10 @@ class PhoneNumberInputViewController: BaseRegisterViewController, UITextFieldDel
     private let registerView = RegisterView()
     var viewModel: RegisterViewModel? = RegisterViewModel()
 
+    func getRegisterView() -> RegisterView {
+        return self.registerView
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupView()
@@ -26,6 +30,8 @@ class PhoneNumberInputViewController: BaseRegisterViewController, UITextFieldDel
     private func setupView() {
         view.addSubview(registerView)
         
+        navigationItem.title = "PHONE"
+
         registerView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
@@ -63,7 +69,7 @@ class PhoneNumberInputViewController: BaseRegisterViewController, UITextFieldDel
 //        registerView.activityIndicator.isHidden = false
 //        registerView.activityIndicator.startAnimating()
 //
-//        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 2) {
+//        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 1) {
 //            let verificationVC = VerificationCodeViewController()
 //            verificationVC.viewModel = self.viewModel
 //            self.navigationController?.pushViewController(verificationVC, animated: true)

@@ -11,11 +11,20 @@ class PasswordInputViewController: BaseRegisterViewController, UITextFieldDelega
     private let registerView = RegisterView()
     var viewModel: RegisterViewModel?
 
+    func setupChildView() {
+        
+    }
+    
+    func getRegisterView() -> RegisterView {
+        return self.registerView
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupView()
         configureRegistraion()
         addTargets()
+        setupChildView()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -25,6 +34,8 @@ class PasswordInputViewController: BaseRegisterViewController, UITextFieldDelega
     private func setupView() {
         view.addSubview(registerView)
         
+        navigationItem.title = "PASSWORD"
+
         registerView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }

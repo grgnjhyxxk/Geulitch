@@ -14,6 +14,14 @@ class VerificationCodeViewController: BaseRegisterViewController, UITextFieldDel
     private var totalTimeInSeconds: Int = 180
     var viewModel: RegisterViewModel?
 
+    func getRegisterView() -> RegisterView {
+        return self.registerView
+    }
+    
+    func resetTotalTime() {
+        totalTimeInSeconds = 180
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupView()
@@ -29,6 +37,8 @@ class VerificationCodeViewController: BaseRegisterViewController, UITextFieldDel
     private func setupView() {
         view.addSubview(registerView)
         
+        navigationItem.title = "CHECK"
+
         registerView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
@@ -100,24 +110,30 @@ class VerificationCodeViewController: BaseRegisterViewController, UITextFieldDel
     
     @objc func reverificationButtonAction() {
         impactFeedbackgenerator.impactOccurred()
-
+        
         registerView.activityIndicator.isHidden = false
         registerView.activityIndicator.startAnimating()
         
         viewModel?.sendVerificationCode { [weak self] verificationID in
-            guard let verificationID = verificationID else {
-                
-                return
-            }
+            guard let verificationID = verificationID else { return }
 
             UserDefaults.standard.set(verificationID, forKey: "verificationID")
             self?.registerView.reverificationButton.backgroundColor = UIColor.systemGray
             self?.reverificationButton?.isEnabled = false
-            self?.totalTimeInSeconds = 180
+            self?.registerView.textField.isEnabled = true
+            self?.resetTotalTime()
             
             self?.registerView.activityIndicator.stopAnimating()
             self?.registerView.activityIndicator.isHidden = true
         }
+        
+//        registerView.reverificationButton.backgroundColor = UIColor.systemGray
+//        reverificationButton?.isEnabled = false
+//        registerView.textField.isEnabled = true
+//        totalTimeInSeconds = 180
+//        
+//        registerView.activityIndicator.stopAnimating()
+//        registerView.activityIndicator.isHidden = true
     }
     
     private func startTimer() {
@@ -127,6 +143,10 @@ class VerificationCodeViewController: BaseRegisterViewController, UITextFieldDel
     private func stopTimer() {
         timer?.invalidate()
         timer = nil
+        
+        registerView.textField.isEnabled = false
+        registerView.nextButton.isEnabled = false
+        registerView.nextButton.backgroundColor = UIColor.systemGray
     }
 
     @objc private func updateTimer() {
