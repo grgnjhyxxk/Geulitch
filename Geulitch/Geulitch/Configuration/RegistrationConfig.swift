@@ -68,9 +68,9 @@ enum RegistrationConfig {
         case .userId:
             return "알파벳과 숫자, 특수문자(_ .)를 사용할 수 있습니다. 마침표는 처음과 끝에 위치할 수 없습니다."
         case .password:
-            return "안전한 비밀번호를 입력하세요."
+            return "비밀번호는 6자리 이상 최대 128자리까지 입력 가능합니다."
         case .penName:
-            return "필명은 다른 사람과 공유되지 않습니다."
+            return "필명은 중복이 가능합니다."
         }
     }
     
