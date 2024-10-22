@@ -37,4 +37,18 @@ extension UIFont {
 
         return UIFont(name: "\(familyName)-\(weightString)", size: fontSize) ?? .systemFont(ofSize: fontSize, weight: weight)
     }
+    
+    static func notoSans(size fontSize: CGFloat, weight: UIFont.Weight) -> UIFont {
+        let familyName = "NotoSans"
+        
+        var weightString: String
+        switch weight {
+        case .semibold:
+            weightString = "semiBold"
+        default:
+            weightString = "semiBold"
+        }
+        
+        return UIFont(name: "\(familyName)-\(weightString)", size: fontSize) ?? .systemFont(ofSize: fontSize, weight: weight)
+    }
 }
