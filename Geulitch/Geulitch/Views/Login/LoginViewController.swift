@@ -74,43 +74,32 @@ class LoginViewController: UIViewController {
         
         // 비밀번호를 해시하고 ViewModel에 전달
         viewModel.setPassword(password)
+
+        // 로그인 시도할 때, 전화번호인지 아이디인지 판단
+        let isPhoneNumber = CharacterSet.decimalDigits.isSuperset(of: CharacterSet(charactersIn: userIdOrPhoneNumber))
         
-        // 입력된 값이 숫자이면 전화번호로 처리
-        if CharacterSet.decimalDigits.isSuperset(of: CharacterSet(charactersIn: userIdOrPhoneNumber)) {
-            // 전화번호로 로그인 시도
-            loginView.activityIndicator.isHidden = false
-            loginView.activityIndicator.startAnimating()
+        loginView.activityIndicator.isHidden = false
+        loginView.activityIndicator.startAnimating()
+        
+        // 로그인 호출
+        viewModel.login(userIdentifier: userIdOrPhoneNumber, isPhoneNumber: isPhoneNumber) { [weak self] result in
+            self?.loginView.activityIndicator.stopAnimating()
+            self?.loginView.activityIndicator.isHidden = true
             
-            viewModel.updatePhoneNumber(userIdOrPhoneNumber)
-            viewModel.loginWithPhoneNumber { [weak self] result in
-                switch result {
-                case .success:
-                    print("전화번호 로그인 성공")
-                    // 로그인 성공 처리 (예: 다음 화면으로 이동)
-                case .failure(let error):
-                    print("로그인 실패: \(error.localizedDescription)")
+            switch result {
+            case .success:
+                print("\(isPhoneNumber ? "전화번호" : "아이디") 로그인 성공")
+                if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                    let window = windowScene.windows.first {
+                    let tabBarController = TabBarController()
+                    
+                    window.rootViewController = tabBarController
+                    window.makeKeyAndVisible()
+
+                    UIView.transition(with: window, duration: 0.2, options: .transitionCrossDissolve, animations: nil, completion: nil)
                 }
-                
-                self?.loginView.activityIndicator.stopAnimating()
-                self?.loginView.activityIndicator.isHidden = true
-            }
-        } else {
-            // 아이디로 로그인 시도
-            loginView.activityIndicator.isHidden = false
-            loginView.activityIndicator.startAnimating()
-            
-            viewModel.updateUserId(userIdOrPhoneNumber)
-            viewModel.login { [weak self] result in
-                switch result {
-                case .success:
-                    print("아이디 로그인 성공")
-                    // 로그인 성공 처리 (예: 다음 화면으로 이동)
-                case .failure(let error):
-                    print("로그인 실패: \(error.localizedDescription)")
-                }
-                
-                self?.loginView.activityIndicator.stopAnimating()
-                self?.loginView.activityIndicator.isHidden = true
+            case .failure(let error):
+                print("로그인 실패: \(error.localizedDescription)")
             }
         }
     }

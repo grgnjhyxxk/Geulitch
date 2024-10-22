@@ -41,55 +41,64 @@ class LoginViewModel {
         return hashed.compactMap { String(format: "%02x", $0) }.joined()
     }
     
-    // Firestore에서 사용자 확인 및 비밀번호 비교
-    func login(completion: @escaping (Result<Void, Error>) -> Void) {
-        guard let userID = loginModel.userID, let password = loginModel.password else {
-            completion(.failure(NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "아이디 또는 비밀번호가 없습니다."])))
+    func login(userIdentifier: String, isPhoneNumber: Bool, completion: @escaping (Result<Void, Error>) -> Void) {
+        guard let password = loginModel.password else {
+            completion(.failure(NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "비밀번호가 없습니다."])))
             return
         }
-        
-        let usersCollection = db.collection("users")
-        
-        // 아이디로 로그인
-        usersCollection.whereField("userID", isEqualTo: userID.lowercased()).getDocuments { (querySnapshot, error) in
-            if let error = error {
-                completion(.failure(error))
-                return
-            }
-            
-            guard let document = querySnapshot?.documents.first,
-                  let storedPassword = document.data()["password"] as? String else {
-                completion(.failure(NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "아이디가 존재하지 않습니다."])))
-                return
-            }
-            
-            self.comparePassword(storedPassword: storedPassword, enteredPassword: password, completion: completion)
-        }
-    }
 
-    // 전화번호로 로그인
-    func loginWithPhoneNumber(completion: @escaping (Result<Void, Error>) -> Void) {
-        guard let phoneNumber = loginModel.phoneNumber, let password = loginModel.password else {
-            completion(.failure(NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "전화번호 또는 비밀번호가 없습니다."])))
-            return
-        }
-        
         let usersCollection = db.collection("users")
-        
-        // 전화번호로 로그인
-        usersCollection.whereField("phoneNumber", isEqualTo: phoneNumber).getDocuments { (querySnapshot, error) in
-            if let error = error {
-                completion(.failure(error))
-                return
+
+        // 아이디 또는 전화번호로 로그인
+        if isPhoneNumber {
+            // 전화번호로 로그인
+            usersCollection.whereField("phoneNumber", isEqualTo: userIdentifier).getDocuments { (querySnapshot, error) in
+                if let error = error {
+                    completion(.failure(error))
+                    return
+                }
+
+                guard let document = querySnapshot?.documents.first,
+                      let storedPassword = document.data()["password"] as? String else {
+                    completion(.failure(NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "전화번호가 존재하지 않습니다."])))
+                    return
+                }
+
+                self.comparePassword(storedPassword: storedPassword, enteredPassword: password, completion: { result in
+                    if case .success = result {
+                        // 비밀번호가 맞으면 자동 로그인 정보 저장
+                        UserDefaults.standard.set(userIdentifier, forKey: "autoLoginPhoneNumber")
+                        UserDefaults.standard.set(password, forKey: "autoLoginPassword") // 비밀번호 저장
+                    }
+                    completion(result)
+                })
             }
-            
-            guard let document = querySnapshot?.documents.first,
-                  let storedPassword = document.data()["password"] as? String else {
-                completion(.failure(NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "전화번호가 존재하지 않습니다."])))
-                return
+        } else {
+            // 아이디로 로그인
+            usersCollection.whereField("userID", isEqualTo: userIdentifier.lowercased()).getDocuments { (querySnapshot, error) in
+                if let error = error {
+                    completion(.failure(error))
+                    return
+                }
+
+                guard let document = querySnapshot?.documents.first,
+                      let storedPassword = document.data()["password"] as? String else {
+                    completion(.failure(NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "아이디가 존재하지 않습니다."])))
+                    return
+                }
+
+                // 아이디로 로그인한 경우, 전화번호 가져오기
+                if let phoneNumber = document.data()["phoneNumber"] as? String {
+                    UserDefaults.standard.set(phoneNumber, forKey: "autoLoginPhoneNumber")
+                }
+
+                self.comparePassword(storedPassword: storedPassword, enteredPassword: password, completion: { result in
+                    if case .success = result {
+                        UserDefaults.standard.set(password, forKey: "autoLoginPassword") // 비밀번호 저장
+                    }
+                    completion(result)
+                })
             }
-            
-            self.comparePassword(storedPassword: storedPassword, enteredPassword: password, completion: completion)
         }
     }
 
