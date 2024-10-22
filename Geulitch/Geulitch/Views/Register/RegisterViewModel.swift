@@ -94,6 +94,8 @@ class RegisterViewModel {
             switch result {
             case .success:
                 print("회원가입 성공")
+                UserDefaults.standard.set(phoneNumber, forKey: "autoLoginPhoneNumber")
+                UserDefaults.standard.set(password, forKey: "autoLoginPassword")
                 completion(.success(()))
             case .failure(let error):
                 print("회원가입 실패: \(error)")

@@ -69,10 +69,24 @@ class PenNameInputViewController: BaseRegisterViewController, UITextFieldDelegat
                 switch result {
                 case .success:
                     print("회원가입 성공!")
-                    self.navigationController?.popToRootViewController(animated: true)
-                    self.registerView.activityIndicator.stopAnimating()
-                    self.registerView.activityIndicator.isHidden = true
-                case .failure(let error):
+                    if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                       let window = windowScene.windows.first {
+                        let mainFeedViewController = TabBarController()
+                        
+                        mainFeedViewController.view.alpha = 0.0
+                        mainFeedViewController.modalPresentationStyle = .fullScreen
+                        
+                        window.backgroundColor = UIColor.clear
+                        window.rootViewController = TabBarController()
+                        window.makeKeyAndVisible()
+                        
+                        self.registerView.activityIndicator.stopAnimating()
+                        self.registerView.activityIndicator.isHidden = true
+                        
+                        UIView.animate(withDuration: 1.0) {
+                            mainFeedViewController.view.alpha = 1.0
+                        }
+                    }                case .failure(let error):
                     print("회원가입 실패: \(error.localizedDescription)")
                 }
             }
