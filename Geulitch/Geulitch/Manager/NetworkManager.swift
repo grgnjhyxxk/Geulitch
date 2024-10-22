@@ -113,4 +113,46 @@ class NetworkManager {
             }
         }
     }
+    
+    func autoLogin(completion: @escaping (UIViewController) -> Void) {
+        // UserDefaults에서 자동 로그인 정보 가져오기
+        guard let phoneNumber = UserDefaults.standard.string(forKey: "autoLoginPhoneNumber"),
+              let password = UserDefaults.standard.string(forKey: "autoLoginPassword") else {
+            // 자동 로그인 정보가 없으면 인증 화면 반환
+            completion(UINavigationController(rootViewController: AuthenticationViewController()))
+            return
+        }
+        
+        // 전화번호로 사용자 문서 찾기
+        db.collection("users").whereField("phoneNumber", isEqualTo: phoneNumber).getDocuments { snapshot, error in
+            if let error = error {
+                print("Error fetching user data: \(error.localizedDescription)")
+                // 오류 발생 시 인증 화면 반환
+                completion(UINavigationController(rootViewController: AuthenticationViewController()))
+                return
+            }
+            
+            guard let documents = snapshot?.documents, let document = documents.first else {
+                // 문서가 없으면 인증 화면 반환
+                completion(UINavigationController(rootViewController: AuthenticationViewController()))
+                return
+            }
+            
+            // 유저 문서가 존재하고 비밀번호가 일치하는지 확인
+            guard let storedPassword = document.data()["password"] as? String else {
+                // 비밀번호 정보가 없으면 인증 화면 반환
+                completion(UINavigationController(rootViewController: AuthenticationViewController()))
+                return
+            }
+            
+            // 비밀번호 비교
+            if storedPassword == password {
+                // 비밀번호가 일치하면 TabBarController 반환
+                completion(TabBarController())
+            } else {
+                // 비밀번호가 일치하지 않으면 인증 화면 반환
+                completion(UINavigationController(rootViewController: AuthenticationViewController()))
+            }
+        }
+    }
 }
