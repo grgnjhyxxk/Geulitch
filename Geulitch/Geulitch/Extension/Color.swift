@@ -51,4 +51,12 @@ extension UIColor {
     static var UnderlineButtonTextColor: UIColor {
         return UIColor(named: "UnderlineButtonTextColor") ?? .systemBlue
     }
+    
+    static var SegmentControlBackground: UIColor {
+        return UIColor(named: "SegmentControlBackground") ?? .systemBlue
+    }
+    
+    static var SegmentControlIndicatorViewBackgroundColor: UIColor {
+        return UIColor(named: "SegmentControlIndicatorViewBackgroundColor") ?? .systemBlue
+    }
 }
