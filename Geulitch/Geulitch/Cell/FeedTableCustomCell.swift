@@ -9,8 +9,8 @@ import UIKit
 import SnapKit
 import Then
 
-class RecommendedTableCustomCell: UITableViewCell {
-    static let identifier = "RecommendedTableCustomCell"
+class FeedTableCustomCell: UITableViewCell {
+    static let identifier = "FeedTableCustomCell"
     
     private var postTitleHeightConstraint: Constraint?
     private var postBlurbHeightConstraint: Constraint?
