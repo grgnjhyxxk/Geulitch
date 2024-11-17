@@ -87,18 +87,34 @@ class RegisterViewModel {
             "userID": userID,
             "password": password,
             "penName": penName,
-            "profileImage": ""
+            "profileImage": "",
+            "follower": [],
+            "privacySetting": false
         ]
-        
+
         NetworkManager.shared.addUser(data: data) { result in
             switch result {
-            case .success:
-                print("회원가입 성공")
-                UserDefaults.standard.set(phoneNumber, forKey: "autoLoginPhoneNumber")
+            case .success(let documentID):
+                print("회원가입 성공, Document ID: \(documentID)")
                 UserDefaults.standard.set(password, forKey: "autoLoginPassword")
+                UserDefaults.standard.set(documentID, forKey: "autoLoginDocumentID")
                 completion(.success(()))
             case .failure(let error):
                 print("회원가입 실패: \(error)")
+                completion(.failure(error))
+            }
+        }
+    }
+    
+    // 사용자 정보를 가져오는 함수 추가
+    func fetchLoggedInUser(completion: @escaping (Result<UserData, Error>) -> Void) {
+        NetworkManager.shared.fetchLoggedInUser { result in
+            switch result {
+            case .success(let user):
+                print("\nFetched user: \n DocumentID: \(user.documentID)\n UserID: \(user.userID.value)\n PenName: \(user.penName.value)\n Introduction: \(user.introduction.value)\n")
+                completion(.success(user))
+            case .failure(let error):
+                print("Error fetching user: \(error.localizedDescription)")
                 completion(.failure(error))
             }
         }
