@@ -11,6 +11,7 @@ import FirebaseFirestore
 
 class LaunchViewController: UIViewController {
     private let launchView = LaunchView()
+    private let viewModel = LaunchViewModel()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -31,13 +32,26 @@ class LaunchViewController: UIViewController {
         launchView.configureAppNameLabel()
 
         // 자동 로그인 수행
-        autoLogin { [weak self] isLoggedIn in
+        viewModel.autoLogin { [weak self] isLoggedIn in
+            guard let self = self else { return }
             if isLoggedIn {
-                self?.switchToTabBarController()
+                // 사용자 정보 패치
+                self.viewModel.fetchLoggedInUser { result in
+                    switch result {
+                    case .success(let user):
+                        LoggedInUserManager.shared.setLoggedInUser(user)
+                        print("User fetched successfully: \(user)")
+                        self.switchToTabBarController()
+                    case .failure(let error):
+                        // 사용자 정보 패치 실패 시 로그인 화면으로 전환
+                        print("Failed to fetch user: \(error.localizedDescription)")
+                        self.switchToAuthenticationViewController()
+                    }
+                }
             } else {
                 // 로그인 화면으로 전환
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                    self?.switchToAuthenticationViewController()
+                    self.switchToAuthenticationViewController()
                 }
             }
         }
@@ -78,7 +92,7 @@ class LaunchViewController: UIViewController {
             UIView.transition(with: window, duration: 0.2, options: .transitionCrossDissolve, animations: nil, completion: nil)
         }
     }
-
+    
     private func switchToTabBarController() {
         if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
             let window = windowScene.windows.first {
@@ -88,44 +102,6 @@ class LaunchViewController: UIViewController {
             window.makeKeyAndVisible()
             
             UIView.transition(with: window, duration: 0.2, options: .transitionCrossDissolve, animations: nil, completion: nil)
-        }
-    }
-
-    // 자동 로그인 함수
-    private func autoLogin(completion: @escaping (Bool) -> Void) {
-        // UserDefaults에서 자동 로그인 정보 가져오기
-        guard let phoneNumber = UserDefaults.standard.string(forKey: "autoLoginPhoneNumber"),
-              let password = UserDefaults.standard.string(forKey: "autoLoginPassword") else {
-            completion(false) // 자동 로그인 정보가 없으므로 로그인 실패
-            return
-        }
-        
-        // 전화번호로 사용자 문서 찾기
-        let db = Firestore.firestore()
-        db.collection("users").whereField("phoneNumber", isEqualTo: phoneNumber).getDocuments { snapshot, error in
-            if let error = error {
-                print("Error fetching user data: \(error.localizedDescription)")
-                completion(false) // 오류 발생 시 로그인 실패
-                return
-            }
-            
-            guard let documents = snapshot?.documents, let document = documents.first else {
-                completion(false) // 문서가 없으면 로그인 실패
-                return
-            }
-            
-            // 유저 문서가 존재하고 비밀번호가 일치하는지 확인
-            guard let storedPassword = document.data()["password"] as? String else {
-                completion(false) // 비밀번호 정보가 없으면 로그인 실패
-                return
-            }
-            
-            // 비밀번호 비교
-            if storedPassword == password {
-                completion(true) // 비밀번호가 일치하면 로그인 성공
-            } else {
-                completion(false) // 비밀번호가 일치하지 않으면 로그인 실패
-            }
         }
     }
 }
