@@ -13,20 +13,23 @@ class FoundIDViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupNavigation()
         setupView()
         configureRegistraion()
         addTargets()
     }
     
-    private func setupView() {
-        view.backgroundColor = UIColor.primaryBackground
-
+    private func setupNavigation() {
         navigationItem.title = "FOUND ID"
 
         let backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: self, action: nil)
         backBarButtonItem.tintColor = UIColor.primaryLabelText
         self.navigationItem.backBarButtonItem = backBarButtonItem
-        
+    }
+    
+    private func setupView() {
+        view.backgroundColor = UIColor.primaryBackground
+
         view.addSubview(findAccountView)
         
         findAccountView.snp.makeConstraints { make in
@@ -49,7 +52,7 @@ class FoundIDViewController: UIViewController {
             print("사용자 계정 정보가 없습니다.")
             findAccountView.configure(
                 userID: "Unknown?",
-                userProfileImage: UIImage.defaultUserProfile
+                userProfileImage: ""
             )
         }
     }

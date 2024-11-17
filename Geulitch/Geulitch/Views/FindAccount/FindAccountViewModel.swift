@@ -23,16 +23,16 @@ class FindAccoutViewModel {
     }
 
     // 유저 프로필 이미지 업데이트
-    func updateUserProfileImage(_ userProfileImage: UIImage) {
+    func updateUserProfileImage(_ userProfileImage: String) {
         findAccountModel.userProfileImage = userProfileImage
     }
     
     // 유저 프로필 이미지 업데이트
-    func updateUserDocument(_ userDocument: DocumentSnapshot) {
-        findAccountModel.userDocument = userDocument
+    func updateUserDocument(_ documentID: String) {
+        findAccountModel.userDocument = documentID
     }
     
-    func getUserAccount() -> (userID: String, userProfileImage: UIImage)? {
+    func getUserAccount() -> (userID: String, userProfileImage: String)? {
         guard let userID = findAccountModel.userID,
               let userProfileImage = findAccountModel.userProfileImage else {
             return nil
@@ -54,9 +54,9 @@ class FindAccoutViewModel {
     }
     
     // 회원정보 찾기 (NetworkManager 사용)
-    func fetchUserData(completion: @escaping (Result<(userDocument: DocumentSnapshot, userID: String, profileImage: UIImage), Error>) -> Void) {
+    func fetchUserData(completion: @escaping (Result<(userDocumentID: String, userID: String, profileImage: String), Error>) -> Void) {
         if let phoneNumber = findAccountModel.phoneNumber {
-            NetworkManager.shared.fetchUserData(phoneNumber: phoneNumber) { result in
+            NetworkManager.shared.fetchUserDataForFindAccount(phoneNumber: phoneNumber) { result in
                 completion(result)
             }
         } else {
@@ -87,7 +87,7 @@ class FindAccoutViewModel {
         }
         
         // NetworkManager의 updatePassword 호출
-        NetworkManager.shared.updatePassword(document: userDocument, newHashedPassword: newHashedPassword) { result in
+        NetworkManager.shared.updatePassword(documentID: userDocument, newHashedPassword: newHashedPassword) { result in
             completion(result) // NetworkManager의 결과 반환
         }
     }
