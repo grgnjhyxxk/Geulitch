@@ -59,4 +59,16 @@ extension UIColor {
     static var SegmentControlIndicatorViewBackgroundColor: UIColor {
         return UIColor(named: "SegmentControlIndicatorViewBackgroundColor") ?? .systemBlue
     }
+    
+    static var ButtonBorderColor: UIColor {
+        return UIColor(named: "ButtonBorderColor") ?? .systemBlue
+    }
+    
+    static var SearchViewTextFieldColor: UIColor {
+        return UIColor(named: "SearchViewTextFieldColor") ?? .systemBlue
+    }
+    
+    static var ActivityBackgroundColor: UIColor {
+        return UIColor(named: "ActivityBackgroundColor") ?? .systemBlue
+    }
 }
