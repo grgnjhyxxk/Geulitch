@@ -32,7 +32,7 @@ class RegisterView: UIView {
         $0.tintColor = UIColor.primaryTextColor
     }
     
-    let titleLabel = UITextField().then {
+    let titleLabel = UILabel().then {
         $0.textColor = UIColor.primaryTextColor
         $0.font = UIFont.notoSansKR(size: 16, weight: .semibold)
     }
@@ -75,7 +75,7 @@ class RegisterView: UIView {
     }
     
     let activityIndicator = UIActivityIndicatorView().then {
-        $0.backgroundColor = UIColor.black.withAlphaComponent(0.5)
+        $0.backgroundColor = UIColor.ActivityBackgroundColor
         $0.color = UIColor.ActivityColor
         $0.style = .large
     }
@@ -114,7 +114,7 @@ class RegisterView: UIView {
     
     private func setupConstraints() {
         titleIcon.snp.makeConstraints { make in
-            make.top.equalTo(140)
+            make.top.equalTo(safeAreaLayoutGuide.snp.top).offset(20)
             make.leading.equalTo(15)
             make.size.equalTo(CGSize(width: 24, height: 24))
         }
