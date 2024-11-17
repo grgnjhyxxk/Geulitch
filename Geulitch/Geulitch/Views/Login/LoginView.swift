@@ -15,7 +15,7 @@ class LoginView: UIView {
         $0.tintColor = UIColor.primaryTextColor
     }
     
-    let userIdInputTextFieldTitleLabel = UITextField().then {
+    let userIdInputTextFieldTitleLabel = UILabel().then {
         $0.textColor = UIColor.primaryTextColor
         $0.font = UIFont.notoSansKR(size: 16, weight: .semibold)
     }
@@ -25,7 +25,7 @@ class LoginView: UIView {
         $0.tintColor = UIColor.primaryTextColor
     }
     
-    let passwordInputTextFieldTitleLabel = UITextField().then {
+    let passwordInputTextFieldTitleLabel = UILabel().then {
         $0.textColor = UIColor.primaryTextColor
         $0.font = UIFont.notoSansKR(size: 16, weight: .semibold)
     }
@@ -67,7 +67,7 @@ class LoginView: UIView {
     }
     
     let activityIndicator = UIActivityIndicatorView().then {
-        $0.backgroundColor = UIColor.black.withAlphaComponent(0.5)
+        $0.backgroundColor = UIColor.ActivityBackgroundColor
         $0.color = UIColor.ActivityColor
         $0.style = .large
     }
