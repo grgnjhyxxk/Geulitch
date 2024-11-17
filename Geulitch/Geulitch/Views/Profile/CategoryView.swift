@@ -186,12 +186,12 @@ extension CategoryView {
         
         private func setup() {
             setTitle(text, for: .normal)
-            setTitleColor(UIColor.systemGray, for: .normal)
+            setTitleColor(UIColor.darkGray, for: .normal)
             titleLabel?.font = UIFont.notoSans(size: 15, weight: .semibold)
         }
         
         private func update() {
-            let textColor: UIColor = isSelected ? .primaryTextColor : UIColor.systemGray
+            let textColor: UIColor = isSelected ? .primaryTextColor : UIColor.darkGray
             setTitleColor(textColor, for: .normal)
         }
     }
