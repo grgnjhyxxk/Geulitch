@@ -14,6 +14,7 @@ class LoginViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupNavigation()
         setupView()
         configureRegistraion()
         addTargets()
@@ -22,19 +23,16 @@ class LoginViewController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-    }
-    
-    private func setupView() {
-        view.backgroundColor = UIColor.primaryBackground
-
-        navigationItem.title = "LOGIN"
+    private func setupNavigation() {
+        navigationItem.title = "로그인"
         
         let backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: self, action: nil)
         backBarButtonItem.tintColor = UIColor.primaryLabelText
         self.navigationItem.backBarButtonItem = backBarButtonItem
-
+    }
+    
+    private func setupView() {
+        view.backgroundColor = UIColor.primaryBackgroundColor
         
         view.addSubview(loginView)
         
@@ -83,23 +81,39 @@ class LoginViewController: UIViewController {
         
         // 로그인 호출
         viewModel.login(userIdentifier: userIdOrPhoneNumber, isPhoneNumber: isPhoneNumber) { [weak self] result in
-            self?.loginView.activityIndicator.stopAnimating()
-            self?.loginView.activityIndicator.isHidden = true
-            
             switch result {
             case .success:
                 print("\(isPhoneNumber ? "전화번호" : "아이디") 로그인 성공")
-                if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-                    let window = windowScene.windows.first {
-                    let tabBarController = TabBarController()
-                    
-                    window.rootViewController = tabBarController
-                    window.makeKeyAndVisible()
+                self?.viewModel.fetchLoggedInUser { result in
+                    switch result {
+                    case .success(let user):
+                        LoggedInUserManager.shared.setLoggedInUser(user)
+                        
+                        self?.loginView.activityIndicator.stopAnimating()
+                        self?.loginView.activityIndicator.isHidden = true
+                        
+                        print("User fetched successfully: \(user)")
+                        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                            let window = windowScene.windows.first {
+                            let tabBarController = TabBarController()
+                            
+                            window.rootViewController = tabBarController
+                            window.makeKeyAndVisible()
 
-                    UIView.transition(with: window, duration: 0.2, options: .transitionCrossDissolve, animations: nil, completion: nil)
+                            UIView.transition(with: window, duration: 0.2, options: .transitionCrossDissolve, animations: nil, completion: nil)
+                        }
+                    case .failure(let error):
+                        print("Failed to fetch user: \(error.localizedDescription)")
+                        
+                        self?.loginView.activityIndicator.stopAnimating()
+                        self?.loginView.activityIndicator.isHidden = true
+                    }
                 }
             case .failure(let error):
                 print("로그인 실패: \(error.localizedDescription)")
+                
+                self?.loginView.activityIndicator.stopAnimating()
+                self?.loginView.activityIndicator.isHidden = true
             }
         }
     }

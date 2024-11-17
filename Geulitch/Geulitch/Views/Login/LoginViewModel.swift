@@ -49,10 +49,9 @@ class LoginViewModel {
 
         let usersCollection = db.collection("users")
 
-        // 아이디 또는 전화번호로 로그인
         if isPhoneNumber {
-            // 전화번호로 로그인
-            usersCollection.whereField("phoneNumber", isEqualTo: userIdentifier).getDocuments { (querySnapshot, error) in
+            let formatUserIdentifier = formatPhoneNumber(userIdentifier)
+            usersCollection.whereField("phoneNumber", isEqualTo: formatUserIdentifier).getDocuments { (querySnapshot, error) in
                 if let error = error {
                     completion(.failure(error))
                     return
@@ -64,17 +63,15 @@ class LoginViewModel {
                     return
                 }
 
-                self.comparePassword(storedPassword: storedPassword, enteredPassword: password, completion: { result in
+                self.comparePassword(storedPassword: storedPassword, enteredPassword: password) { result in
                     if case .success = result {
-                        // 비밀번호가 맞으면 자동 로그인 정보 저장
-                        UserDefaults.standard.set(userIdentifier, forKey: "autoLoginPhoneNumber")
-                        UserDefaults.standard.set(password, forKey: "autoLoginPassword") // 비밀번호 저장
+                        UserDefaults.standard.set(password, forKey: "autoLoginPassword")
+                        UserDefaults.standard.set(document.documentID, forKey: "autoLoginDocumentID")
                     }
                     completion(result)
-                })
+                }
             }
         } else {
-            // 아이디로 로그인
             usersCollection.whereField("userID", isEqualTo: userIdentifier.lowercased()).getDocuments { (querySnapshot, error) in
                 if let error = error {
                     completion(.failure(error))
@@ -87,17 +84,13 @@ class LoginViewModel {
                     return
                 }
 
-                // 아이디로 로그인한 경우, 전화번호 가져오기
-                if let phoneNumber = document.data()["phoneNumber"] as? String {
-                    UserDefaults.standard.set(phoneNumber, forKey: "autoLoginPhoneNumber")
-                }
-
-                self.comparePassword(storedPassword: storedPassword, enteredPassword: password, completion: { result in
+                self.comparePassword(storedPassword: storedPassword, enteredPassword: password) { result in
                     if case .success = result {
-                        UserDefaults.standard.set(password, forKey: "autoLoginPassword") // 비밀번호 저장
+                        UserDefaults.standard.set(password, forKey: "autoLoginPassword")
+                        UserDefaults.standard.set(document.documentID, forKey: "autoLoginDocumentID")
                     }
                     completion(result)
-                })
+                }
             }
         }
     }
@@ -108,6 +101,20 @@ class LoginViewModel {
             completion(.success(()))
         } else {
             completion(.failure(NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "비밀번호가 일치하지 않습니다."])))
+        }
+    }
+    
+    // 사용자 정보를 가져오는 함수 추가
+    func fetchLoggedInUser(completion: @escaping (Result<UserData, Error>) -> Void) {
+        NetworkManager.shared.fetchLoggedInUser { result in
+            switch result {
+            case .success(let user):
+                print("\nFetched user: \n DocumentID: \(user.documentID)\n UserID: \(user.userID.value)\n PenName: \(user.penName.value)\n Introduction: \(user.introduction.value)\n")
+                completion(.success(user))
+            case .failure(let error):
+                print("Error fetching user: \(error.localizedDescription)")
+                completion(.failure(error))
+            }
         }
     }
 }
