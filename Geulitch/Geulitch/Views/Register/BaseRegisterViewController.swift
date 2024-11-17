@@ -25,11 +25,11 @@ class BaseRegisterViewController: UIViewController {
     func setUpBaseView() {
         self.view.backgroundColor = UIColor.primaryBackgroundColor
         
-        let backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: self, action: nil)
+        let backBarButtonItem = UIBarButtonItem(title: "뒤로", style: .plain, target: self, action: nil)
         backBarButtonItem.tintColor = UIColor.primaryLabelText
         self.navigationItem.backBarButtonItem = backBarButtonItem
     }
-
+    
     @objc func keyboardWillShow(notification: NSNotification) {
         if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue {
             let keyboardHeight = keyboardFrame.cgRectValue.height
