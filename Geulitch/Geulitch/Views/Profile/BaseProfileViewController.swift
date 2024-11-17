@@ -7,114 +7,158 @@
 
 import UIKit
 import Aquaman
+import RxSwift
+import RxCocoa
+import Then
 
-final class ProfileViewController: AquamanPageViewController {
-    private lazy var isPrivateAccountButtonItem = UIBarButtonItem(image: UIImage(systemName: "globe")?.withConfiguration(UIImage.SymbolConfiguration(pointSize: 20, weight: .semibold)), style: .done, target: .none, action: .none).then {
-        $0.tintColor = UIColor.AccentButtonBackgroundColor
-    }
-    
-    private lazy var accountSettingBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "line.3.horizontal")?.withConfiguration(UIImage.SymbolConfiguration(pointSize: 20, weight: .bold)), style: .done, target: nil, action: nil).then {
-        $0.tintColor = UIColor.AccentButtonBackgroundColor
-    }
-    
-    private lazy var profileView: ProfileView = {
+class ProfileViewController: AquamanPageViewController {
+    lazy var profileView: ProfileView = {
         ProfileView()
     }()
     
-    private lazy var computedProfileView: ProfileView = {
+    lazy var computedProfileView: ProfileView = {
         ProfileView()
     }()
     
-    private lazy var categoryView: CategoryView = {
+    lazy var categoryView: CategoryView = {
         CategoryView()
     }()
     
-    private var isCompleteLayout = false
+    lazy var profileViewModel: ProfileViewModel = {
+        ProfileViewModel()
+    }()
     
-    private var headerViewHeight: CGFloat = 0.0
+    var isCompleteLayout = false
     
-    private var lastContentOffset: CGFloat = 0
-
-    private lazy var refreshControl: UIRefreshControl = {
+    var headerViewHeight: CGFloat = 0.0
+        
+    var pages: [AquamanChildViewController] {
+        return []
+    }
+    
+    func bindUserData() { }
+    func setupNavigation() { }
+    func addTargets() { }
+    func configureVisibility() { }
+    
+    lazy var refreshControl: UIRefreshControl = {
         let refreshControl = UIRefreshControl()
+        
+        refreshControl.tintColor = UIColor.primaryTextColor
         refreshControl.addTarget(self, action: #selector(refresh), for: .valueChanged)
         
         return refreshControl
     }()
     
-    @objc private func refresh() {
-        pages.forEach {
-            let viewController = $0 as? ContentsViewController
-            
-            viewController?.isLoading = true
-            viewController?.reload()
-            DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
-                viewController?.isLoading = false
-                viewController?.reload()
-                self.refreshControl.endRefreshing()
-            }
-        }
-    }
+    @objc func refresh() { }
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         setupNavigation()
+        setupView()
+        configureVisibility()
+        bindUserData()
+        bindEvents()
+        addTargets()
+        mainScrollView.delegate = self
+    }
+
+    override func viewWillLayoutSubviews() {
+        super.viewWillLayoutSubviews()
+        let color = UIColor.ButtonBorderColor
+        let resolvedColor = color.resolvedColor(with: traitCollection)
+        profileView.userProfileImageButton.layer.borderColor = resolvedColor.cgColor
+        profileView.userProfileImageButton.layer.borderWidth = 0.25
         
+        profileView.profileEditButton.layer.borderColor = resolvedColor.cgColor
+        profileView.profileEditButton.layer.borderWidth = 1.0
+    }
+
+    private func setupView() {
         view.backgroundColor = UIColor.primaryBackgroundColor
         mainScrollView.backgroundColor = UIColor.primaryBackgroundColor
         
-        bindEvents()
-        
         view.addSubview(computedProfileView)
-        computedProfileView.isHidden = true
         
         computedProfileView.snp.makeConstraints { make in
             make.top.leading.trailing.equalToSuperview()
         }
         
-        mainScrollView.delegate = self
+        computedProfileView.isHidden = true
+
+        if let window = UIApplication.shared.windows.first {
+            window.addSubview(profileView.blurView)
+            window.addSubview(profileView.blurViewCancelFullButton)
+            window.addSubview(profileView.blurViewCancelButton)
+            window.addSubview(profileView.userProfileImageView)
+            
+            profileView.blurView.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+            }
+            
+            profileView.blurViewCancelFullButton.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+            }
+            
+            profileView.blurViewCancelButton.snp.makeConstraints { make in
+                make.top.equalTo(60)
+                make.leading.equalTo(15)
+                make.size.equalTo(CGSize(width: 34, height: 34))
+            }
+            
+            profileView.userProfileImageView.snp.makeConstraints { make in
+                make.center.equalToSuperview()
+                make.size.equalTo(CGSize(width: 250, height: 250))
+            }
+            
+            profileView.userProfileImageButton.addTarget(self, action: #selector(userProfileImageButtonTapped), for: .touchUpInside)
+            profileView.blurViewCancelButton.addTarget(self, action: #selector(blurViewCancelAction), for: .touchUpInside)
+            profileView.blurViewCancelFullButton.addTarget(self, action: #selector(blurViewCancelAction), for: .touchUpInside)
+
+            let pinchGesture = UIPinchGestureRecognizer(target: self, action: #selector(handlePinchGesture(_:)))
+            profileView.userProfileImageView.addGestureRecognizer(pinchGesture)
+        }
     }
     
-    private func setupNavigation() {
-        let backBarButtonItem = UIBarButtonItem(title: "뒤로", style: .plain, target: self, action: nil)
-        backBarButtonItem.tintColor = UIColor.primaryTextColor
-        navigationItem.backBarButtonItem = backBarButtonItem
+    @objc private func userProfileImageButtonTapped() {
+        UIView.animate(withDuration: 0.15, animations: {
+            self.profileView.blurView.alpha = 1
+            self.profileView.blurViewCancelFullButton.alpha = 1
+            self.profileView.blurViewCancelButton.alpha = 1
+            self.profileView.userProfileImageView.alpha = 1
+
+            self.view.layoutIfNeeded()
+        })
+    }
+    
+    @objc func blurViewCancelAction() {
+        UIView.animate(withDuration: 0.15, animations: {
+            self.profileView.blurView.alpha = 0
+            self.profileView.blurViewCancelFullButton.alpha = 0
+            self.profileView.blurViewCancelButton.alpha = 0
+            self.profileView.userProfileImageView.alpha = 0
+
+            self.view.layoutIfNeeded()
+        })
+    }
+    
+    @objc private func handlePinchGesture(_ gesture: UIPinchGestureRecognizer) {
+        guard let gestureView = gesture.view else { return }
         
-        let navigationBarAppearance = UINavigationBarAppearance()
-        navigationBarAppearance.backgroundColor = UIColor.primaryBackgroundColor
-        navigationBarAppearance.shadowColor = .clear
-        navigationBarAppearance.shadowImage = UIImage()
-        navigationController?.navigationBar.standardAppearance = navigationBarAppearance
-        navigationController?.navigationBar.scrollEdgeAppearance = navigationBarAppearance
-
-        accountSettingBarButtonItem.target = self
-        accountSettingBarButtonItem.action = #selector(accountSettingButtonTapped)
-
-        navigationItem.leftBarButtonItem = isPrivateAccountButtonItem
-        navigationItem.rightBarButtonItem = accountSettingBarButtonItem
-    }
-    
-    @objc private func accountSettingButtonTapped() {
-        let accountSettingVC = AccountSettingViewController()
-        navigationController?.pushViewController(accountSettingVC, animated: true)
+        if gesture.state == .changed || gesture.state == .began {
+            gestureView.transform = gestureView.transform.scaledBy(x: gesture.scale, y: gesture.scale)
+            gesture.scale = 1.0
+        } else if gesture.state == .ended {
+            UIView.animate(withDuration: 0.2, animations: {
+                gestureView.transform = .identity // 초기 상태로 복구
+            })
+        }
     }
 
-    private let pages: [AquamanChildViewController] = [
-        ContentsViewController(with: .post),
-        ContentsViewController(with: .series),
-    ]
-    
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        
-        let blurbSize = profileView.postBlurbTextView.sizeThatFits(CGSize(width: view.frame.width, height: CGFloat.greatestFiniteMagnitude))
-        
-        profileView.postBlurbTextView.snp.updateConstraints { make in
-            make.height.equalTo(blurbSize.height) // 유동적으로 높이 설정
-        }
-        
-        headerViewHeight = 15 + 54 + blurbSize.height + 16 + 35 + 15
+    
+        updateHeight()
         
         if isCompleteLayout == false, headerViewHeight > 0 {
             reloadData()
@@ -122,6 +166,23 @@ final class ProfileViewController: AquamanPageViewController {
         }
         
         mainScrollView.refreshControl = refreshControl
+    }
+    
+    func updateHeight() {
+        if profileView.introductionTextView.text == "" {
+            profileView.introductionTextView.snp.updateConstraints { make in
+                make.height.equalTo(15)
+            }
+            headerViewHeight = 15 + 70 + 15 + 16 + 20 + 35
+        } else {
+            let blurbSize = profileView.introductionTextView.sizeThatFits(CGSize(width: view.frame.width, height: CGFloat.greatestFiniteMagnitude))
+            
+            profileView.introductionTextView.snp.updateConstraints { make in
+                make.height.equalTo(blurbSize.height)
+            }
+            
+            headerViewHeight = 15 + 70 + blurbSize.height  + 16 + 20 + 35
+        }
     }
     
     private func bindEvents() {
@@ -156,6 +217,7 @@ final class ProfileViewController: AquamanPageViewController {
     }
     
     override func pageController(_ pageController: AquamanPageViewController, contentScrollViewDidEndScroll scrollView: UIScrollView) {
+        refreshControl.endRefreshing()
         switch currentIndex {
         case 0:
             categoryView.selectedCategory = .post
@@ -171,21 +233,5 @@ final class ProfileViewController: AquamanPageViewController {
         viewControllerAt index: Int
     ) -> (any UIViewController & AquamanChildViewController) {
         pages[index]
-    }
-    
-    override func pageController(_ pageController: AquamanPageViewController, mainScrollViewDidScroll scrollView: UIScrollView) {
-        let offsetY = scrollView.contentOffset.y
-        
-        if offsetY <= 0 {
-            UIView.animate(withDuration: 0.3) {
-                self.navigationController?.setNavigationBarHidden(false, animated: true)
-            }
-        } else if offsetY > 0 {
-            UIView.animate(withDuration: 0.3) {
-                self.navigationController?.setNavigationBarHidden(true, animated: true)
-            }
-        }
-        
-        lastContentOffset = offsetY
     }
 }
