@@ -90,7 +90,7 @@ class FindAccountView: UIView {
         }
     }
     
-    func configure(userID: String, userProfileImage: UIImage) {
+    func configure(userID: String, userProfileImage: String?) {
         let fullText = "기존 가입하신\n아이디는\n\(userID) 입니다."
         let boldText = "\(userID)"
         
@@ -111,7 +111,11 @@ class FindAccountView: UIView {
         // attributedText에 NSAttributedString 적용
         foundIDTitleLabel.attributedText = attributedString
         
-        
-        foundUserProfileImageView.image = userProfileImage
+        // 이미지 URL로 프로필 이미지 설정
+        if let urlString = userProfileImage, let url = URL(string: urlString) {
+            foundUserProfileImageView.sd_setImage(with: url, placeholderImage: UIImage(named: "DefaultUserProfileImage"))
+        } else {
+            foundUserProfileImageView.image = UIImage(named: "DefaultUserProfileImage")
+        }
     }
 }
