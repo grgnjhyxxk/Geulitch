@@ -27,14 +27,10 @@ class PasswordInputViewController: BaseRegisterViewController, UITextFieldDelega
         setupChildView()
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-    }
-    
     private func setupView() {
         view.addSubview(registerView)
         
-        navigationItem.title = "PASSWORD"
+        navigationItem.title = "회원가입"
 
         registerView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
@@ -76,6 +72,21 @@ class PasswordInputViewController: BaseRegisterViewController, UITextFieldDelega
         let penNameInputVC = PenNameInputViewController()
         penNameInputVC.viewModel = self.viewModel
         self.navigationController?.pushViewController(penNameInputVC, animated: true)
+    }
+    
+    func textFieldShouldClear(_ textField: UITextField) -> Bool {
+        print("textField clear")
+        
+        if let maxCharacterLimit = maxCharacterLimit {
+            let progress = min(1.0, CGFloat(maxCharacterLimit))
+            registerView.circularProgressBar.updateProgress(to: progress)
+            registerView.textLimitCountLabel.text = "\(maxCharacterLimit)"
+        }
+
+        registerView.nextButton.isEnabled = false
+        registerView.nextButton.backgroundColor = UIColor.systemGray
+
+        return true
     }
     
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {

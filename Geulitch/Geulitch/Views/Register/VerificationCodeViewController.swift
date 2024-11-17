@@ -30,14 +30,10 @@ class VerificationCodeViewController: BaseRegisterViewController, UITextFieldDel
         startTimer()
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-    }
-    
     private func setupView() {
         view.addSubview(registerView)
         
-        navigationItem.title = "CHECK"
+        navigationItem.title = "회원가입"
 
         registerView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
@@ -181,6 +177,21 @@ class VerificationCodeViewController: BaseRegisterViewController, UITextFieldDel
         registerView.timeLimitCountLabel.text = String(format: "%d:%02d", minutes, seconds)
     }
 
+    func textFieldShouldClear(_ textField: UITextField) -> Bool {
+        print("textField clear")
+        
+        if let maxCharacterLimit = maxCharacterLimit {
+            let progress = min(1.0, CGFloat(maxCharacterLimit))
+            registerView.circularProgressBar.updateProgress(to: progress)
+            registerView.textLimitCountLabel.text = "\(maxCharacterLimit)"
+        }
+        
+        registerView.nextButton.isEnabled = false
+        registerView.nextButton.backgroundColor = UIColor.systemGray
+
+        return true
+    }
+    
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         let currentText = textField.text ?? ""
         let prospectiveText = (currentText as NSString).replacingCharacters(in: range, with: string)
