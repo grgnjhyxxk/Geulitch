@@ -8,24 +8,23 @@
 import UIKit
 
 class UserIDInputViewController: BaseRegisterViewController, UITextFieldDelegate {
-    private let registerView = RegisterView()
+    let registerView = RegisterView()
     var viewModel: RegisterViewModel?
 
     override func viewDidLoad() {
         super.viewDidLoad()
         setupView()
+        setUpIfEditProfileInfo()
         configureRegistraion()
         addTargets()
     }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-    }
+  
+    func setUpIfEditProfileInfo() { }
     
     private func setupView() {
         view.addSubview(registerView)
         
-        navigationItem.title = "USER ID"
+        navigationItem.title = "회원가입"
 
         registerView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
@@ -50,6 +49,12 @@ class UserIDInputViewController: BaseRegisterViewController, UITextFieldDelegate
         )
         
         maxCharacterLimit = step.maxCharacterLimit
+        
+        if let maxCharacterLimit = maxCharacterLimit, let text = registerView.textField.text, !text.isEmpty {
+            let progress = min(1.0, CGFloat(text.count) / CGFloat(maxCharacterLimit))
+            registerView.circularProgressBar.updateProgress(to: progress)
+            registerView.textLimitCountLabel.text = "\(maxCharacterLimit-text.count)"
+        }
     }
     
     private func addTargets() {
@@ -59,7 +64,7 @@ class UserIDInputViewController: BaseRegisterViewController, UITextFieldDelegate
     @objc func buttonAction() {
         impactFeedbackgenerator.impactOccurred()
 
-        if let id = registerView.textField.text {
+        if let id = registerView.textField.text?.lowercased() {
             let isNumeric = CharacterSet.decimalDigits.isSuperset(of: CharacterSet(charactersIn: id))
             if isNumeric {
                 print("아이디는 숫자로만 구성될 수 없습니다.")
@@ -88,34 +93,52 @@ class UserIDInputViewController: BaseRegisterViewController, UITextFieldDelegate
         }
     }
     
+    func textFieldShouldClear(_ textField: UITextField) -> Bool {
+        print("textField clear")
+        
+        if let maxCharacterLimit = maxCharacterLimit {
+            let progress = min(1.0, CGFloat(maxCharacterLimit))
+            registerView.circularProgressBar.updateProgress(to: progress)
+            registerView.textLimitCountLabel.text = "\(maxCharacterLimit)"
+        }
+
+        registerView.nextButton.isEnabled = false
+        registerView.nextButton.backgroundColor = UIColor.systemGray
+
+        return true
+    }
+    
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         let currentText = textField.text ?? ""
         let prospectiveText = (currentText as NSString).replacingCharacters(in: range, with: string)
         
+        // 허용되는 문자 집합 정의
         let allowedCharacters = CharacterSet(charactersIn: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_.")
         let characterSet = CharacterSet(charactersIn: string)
         
-        if !allowedCharacters.isSuperset(of: characterSet) || prospectiveText.count > 30 {
+        // 유효하지 않은 문자나 20자 초과를 막는 조건
+        if !allowedCharacters.isSuperset(of: characterSet) || prospectiveText.count > 20 {
             return false
         }
         
-        if prospectiveText.hasPrefix(".") || prospectiveText.hasSuffix(".") {
-            return false
-        }
-
-        if let maxCharacterLimit = maxCharacterLimit {
-            let progress = min(1.0, CGFloat(prospectiveText.count) / CGFloat(maxCharacterLimit))
-            registerView.circularProgressBar.updateProgress(to: progress)
-            registerView.textLimitCountLabel.text = "\(maxCharacterLimit-prospectiveText.count)"
-        }
+        // .이 처음이나 끝에 오면 버튼을 비활성화
+        let isInvalidPrefixOrSuffix = prospectiveText.hasPrefix(".") || prospectiveText.hasSuffix(".")
+        registerView.nextButton.isEnabled = !isInvalidPrefixOrSuffix
         
-        let changeBool = prospectiveText.count > 0
+        // 텍스트가 변경되었을 때 다음 버튼 색상과 상태 업데이트
+        let changeBool = prospectiveText.count > 0 && !isInvalidPrefixOrSuffix
         UIView.animate(withDuration: 0.2, animations: {
             self.registerView.textFieldActiveUnderline.backgroundColor = changeBool ? UIColor.AccentButtonBackgroundColor : UIColor.SubButtonBackgoundColor
         })
 
-        registerView.nextButton.isEnabled = changeBool
         registerView.nextButton.backgroundColor = changeBool ? UIColor.AccentButtonBackgroundColor : UIColor.systemGray
+        
+        // 최대 문자 수에 대한 진행 표시 업데이트
+        if let maxCharacterLimit = maxCharacterLimit {
+            let progress = min(1.0, CGFloat(prospectiveText.count) / CGFloat(maxCharacterLimit))
+            registerView.circularProgressBar.updateProgress(to: progress)
+            registerView.textLimitCountLabel.text = "\(maxCharacterLimit - prospectiveText.count)"
+        }
 
         return true
     }
