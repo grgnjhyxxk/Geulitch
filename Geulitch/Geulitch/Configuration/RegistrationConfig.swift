@@ -13,7 +13,8 @@ enum RegistrationConfig {
     case userId
     case password
     case penName
-
+    case introcution
+    
     var titleIconImage: UIImage? {
         switch self {
         case .phoneNumber:
@@ -26,6 +27,8 @@ enum RegistrationConfig {
             return UIImage(systemName: "lock.shield")?.withRenderingMode(.alwaysOriginal)
         case .penName:
             return UIImage(systemName: "highlighter")?.withRenderingMode(.alwaysOriginal)
+        case .introcution:
+            return UIImage(systemName: "doc.plaintext")?.withRenderingMode(.alwaysOriginal)
         }
     }
 
@@ -41,6 +44,8 @@ enum RegistrationConfig {
             return "비밀번호"
         case .penName:
             return "필명"
+        case .introcution:
+            return "자기소개"
         }
     }
 
@@ -56,6 +61,8 @@ enum RegistrationConfig {
             return "비밀번호를 입력하세요."
         case .penName:
             return "필명을 입력하세요."
+        case .introcution:
+            return "자기소개를 입력하세요."
         }
     }
 
@@ -71,6 +78,8 @@ enum RegistrationConfig {
             return "비밀번호는 6자리 이상 최대 128자리까지 입력 가능합니다."
         case .penName:
             return "필명은 중복이 가능합니다."
+        case .introcution:
+            return "자유롭게 나를 소개하세요."
         }
     }
     
@@ -81,12 +90,13 @@ enum RegistrationConfig {
         case .verificationCode:
             return 6
         case .userId:
-            return 30
+            return 20
         case .password:
             return 128
         case .penName:
             return 20
+        case .introcution:
+            return 100
         }
     }
 }
-
