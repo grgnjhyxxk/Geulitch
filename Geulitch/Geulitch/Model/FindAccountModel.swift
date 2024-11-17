@@ -5,14 +5,10 @@
 //  Created by Jaehyeok Lim on 10/10/24.
 //
 
-import UIKit
-import FirebaseFirestore
-
 struct FindAccountModel {
     var phoneNumber: String?
-    var userDocument: DocumentSnapshot?
+    var userDocument: String?
     var userID: String?
-    var userProfileImage: UIImage?
+    var userProfileImage: String?
     var newPassword: String?
-    
 }
