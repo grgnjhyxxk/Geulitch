@@ -51,7 +51,7 @@ class AuthenticationView: UIView {
 
     
     let registerButton = UIButton().then {
-        $0.backgroundColor = UIColor.SubButtonBackgoundColor
+        $0.backgroundColor = UIColor.clear
         
         $0.layer.cornerRadius = 20
         $0.clipsToBounds = true
